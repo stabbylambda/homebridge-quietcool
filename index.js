@@ -5,8 +5,8 @@ var Accessory, Service, Characteristic, UUIDGen;
 function QuietCoolFan(log, ip, fan, api) {
     this.ip = ip;
     this.api = api;
-    this.device = fan;
-    this.name = fan.name;
+    this.device = fan.info;
+    this.name = fan.info.name;
     this.log = log;
 
     this.getServices = () => {
@@ -14,25 +14,30 @@ function QuietCoolFan(log, ip, fan, api) {
         const accessoryInfo = new this.api.hap.Service.AccessoryInformation();
 
         accessoryInfo
-            .setCharacteristic(Characteristic.Name, fan.name)
+            .setCharacteristic(Characteristic.Name, fan.info.name)
             .setCharacteristic(Characteristic.Manufacturer, "QuietCool")
             .setCharacteristic(Characteristic.Model, "QuietCool");
 
-        const fanService = new this.api.hap.Service.Fan(fan.name);
+        const fanService = new this.api.hap.Service.Fan(fan.info.name);
 
         fanService
               .getCharacteristic(Characteristic.On)
               .on('get', this.getOn.bind(this))
               .on('set', this.setOn.bind(this));
 
-        // fanService.getCharacteristic(Characteristic.RotationSpeed)
-        //     .setProps({
-        //         minValue: 0,
-        //         maxValue: 100,
-        //         minStep: 50
-        //     })
-        //     .on('get', this.getSpeed.bind(this))
-        //     .on('set', this.setSpeed.bind(this));
+
+        let isMultiSpeed = fan.status.sequence === '1';
+
+        if (isMultiSpeed) {
+            fanService.getCharacteristic(Characteristic.RotationSpeed)
+                .setProps({
+                    minValue: 0,
+                    maxValue: 100,
+                    minStep: 50
+                })
+                .on('get', this.getSpeed.bind(this))
+                .on('set', this.setSpeed.bind(this));
+        }
 
         return [accessoryInfo, fanService];
 
@@ -141,6 +146,8 @@ function QuietCool(log, config, api) {
                 });
     };
 }
+
+
 
 module.exports = (homebridge) => {
     Service = homebridge.hap.Service;
