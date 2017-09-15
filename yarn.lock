@@ -80,9 +80,9 @@ pseudomap@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/pseudomap/-/pseudomap-1.0.2.tgz#f052a28da70e618917ef0a8ac34c1ae5a68286b3"
 
-quietcool@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/quietcool/-/quietcool-1.0.0.tgz#519de74e085de3baad9ba6b7e6995d9dd8a4ed3c"
+quietcool@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/quietcool/-/quietcool-1.0.3.tgz#46f5955ab2f2f1d2be2421697402e2b132192441"
   dependencies:
     coap "^0.21.0"
     limiter "^1.1.2"
