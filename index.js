@@ -25,7 +25,6 @@ function QuietCoolFan(log, ip, fan, api) {
               .on('get', this.getOn.bind(this))
               .on('set', this.setOn.bind(this));
 
-
         let isMultiSpeed = fan.status.sequence === '1';
 
         if (isMultiSpeed) {
@@ -39,6 +38,7 @@ function QuietCoolFan(log, ip, fan, api) {
                 .on('set', this.setSpeed.bind(this));
         }
 
+        log.info("Done with initialization", {name: this.name, isMultiSpeed});
         return [accessoryInfo, fanService];
 
     };
@@ -52,10 +52,11 @@ function QuietCoolFan(log, ip, fan, api) {
         quietcool.setCurrentSpeed(this.ip, this.device.uid, speeds[value] )
             .subscribe(
                 status => {
+                    this.log.info("Done setting speed", this.device.uid, value);
                     cb(null);
                 },
                 err => {
-                    this.log.error(err);
+                    this.log.error('setSpeed', err);
                     cb(err);
                 }
             );
@@ -86,7 +87,7 @@ function QuietCoolFan(log, ip, fan, api) {
                     cb(null, info.status == 1);
                 },
                 err => {
-                    this.log.error(err);
+                    this.log.error('getOn', err);
                     cb(err);
                 }
             );
@@ -99,14 +100,14 @@ function QuietCoolFan(log, ip, fan, api) {
         method(this.ip, this.device.uid)
             .subscribe(
                 info => {
+                    this.log.info("Done setting fan on/off", this.device.name);
                     cb(null);
                 },
                 err => {
-                    this.log.error(err);
+                    this.log.error('setOn', err);
                     cb(err);
                 }
             );
-
     };
 }
 
@@ -118,15 +119,7 @@ function QuietCool(log, config, api) {
     this.config = config;
 
     if (api) {
-        // Save the API object as plugin needs to register new accessory via this object
         this.api = api;
-
-        // Listen to event "didFinishLaunching", this means homebridge already finished loading cached accessories.
-        // Platform Plugin should only register new accessory that doesn't exist in homebridge after this event.
-        // Or start discover new accessories.
-        this.api.on('didFinishLaunching', function() {
-            log("DidFinishLaunching");
-        }.bind(this));
     }
 
     this.accessories = (cb) => {
@@ -142,12 +135,11 @@ function QuietCool(log, config, api) {
                     log.error(err);
                 },
                 () => {
+                    log.info("Done finding all fans");
                     cb(this.allFans);
                 });
     };
 }
-
-
 
 module.exports = (homebridge) => {
     Service = homebridge.hap.Service;
